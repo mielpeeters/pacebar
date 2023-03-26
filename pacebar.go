@@ -1,5 +1,8 @@
 package pacebar
 
+// TODO:
+// - add a name instead of "Pacebar:"
+
 import (
 	"fmt"
 	"strings"
