@@ -13,8 +13,8 @@ const maxWidth int = 40
 type Pacebar struct {
 	// mu is used for mutual exclusion
 	mu sync.Mutex
-	// work is the amount of work to be done in total
-	work int
+	// Work is the amount of work to be done in total
+	Work int
 	// done is the amount of completed work
 	done int
 }
@@ -24,19 +24,19 @@ func (pb *Pacebar) showProgress() {
 	maxStripes := 40
 
 	var showRun, showMax int
-	if pb.work > maxStripes {
-		showRun = pb.done * 40 / pb.work
+	if pb.Work > maxStripes {
+		showRun = pb.done * 40 / pb.Work
 		showMax = 40
 	} else {
 		showRun = pb.done
-		showMax = pb.work
+		showMax = pb.Work
 	}
 
 	fmt.Printf("\r\033[1mPacebar: \033[32m%s\033[31m%s \033[0m(%d / %d)",
-		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.work)
+		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work)
 
 	// end by adding a line for subsequent outputs
-	if pb.done >= pb.work {
+	if pb.done >= pb.Work {
 		fmt.Printf("\n")
 	}
 }
