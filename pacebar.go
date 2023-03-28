@@ -1,7 +1,11 @@
+// Package pacebar implements a very simple progress bar
+// to be used by go programs.
+//
+// To set up pacebar, create a Pacebar object (pb), which you need
+// to provide with the amount of work that you will be doing,
+// and a name.
+// For every amount of work done, call pb.Done(amount).
 package pacebar
-
-// TODO:
-// - add a name instead of "Pacebar:"
 
 import (
 	"fmt"
@@ -18,24 +22,25 @@ type Pacebar struct {
 	mu sync.Mutex
 	// Work is the amount of work to be done in total
 	Work int
+	// Name is the name of the work that will be done
+	Name string
+
 	// done is the amount of completed work
 	done int
 }
 
 func (pb *Pacebar) showProgress() {
 
-	maxStripes := 40
-
 	var showRun, showMax int
-	if pb.Work > maxStripes {
-		showRun = pb.done * 40 / pb.Work
-		showMax = 40
+	if pb.Work > maxWidth {
+		showRun = pb.done * maxWidth / pb.Work
+		showMax = maxWidth
 	} else {
 		showRun = pb.done
 		showMax = pb.Work
 	}
 
-	fmt.Printf("\r\033[1mPacebar: \033[32m%s\033[31m%s \033[0m(%d / %d)",
+	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d)", pb.Name,
 		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work)
 
 	// end by adding a line for subsequent outputs
