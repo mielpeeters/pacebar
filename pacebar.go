@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 )
 
 const maxWidth int = 40
+const alpha float64 = 0.15
 
 // Pacebar is the type to interact with when showing
 // progress through the pacebar package
@@ -27,10 +29,26 @@ type Pacebar struct {
 
 	// done is the amount of completed work
 	done int
+
+	// speed is the estimated completions per second
+	speed float64
+
+	// lastUpdate contains the last time Done() was called
+	lastUpdate time.Time
+}
+
+func (pb *Pacebar) runningAverage(amount int) {
+	if pb.speed == 0 {
+		pb.speed = 10 //TODO: better initialization
+	} else {
+		thisUpdate := time.Now()
+		currentSpeed := float64(amount) / (thisUpdate.Sub(pb.lastUpdate).Seconds())
+		pb.speed = alpha*currentSpeed + pb.speed*(1-alpha)
+		pb.lastUpdate = thisUpdate
+	}
 }
 
 func (pb *Pacebar) showProgress() {
-
 	var showRun, showMax int
 	if pb.Work > maxWidth {
 		showRun = pb.done * maxWidth / pb.Work
@@ -40,8 +58,8 @@ func (pb *Pacebar) showProgress() {
 		showMax = pb.Work
 	}
 
-	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d)", pb.Name,
-		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work)
+	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) (%4.f / s)", pb.Name,
+		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.speed)
 
 	// end by adding a line for subsequent outputs
 	if pb.done >= pb.Work {
@@ -55,5 +73,6 @@ func (pb *Pacebar) Done(amount int) {
 	defer pb.mu.Unlock()
 
 	pb.done += amount
+	pb.runningAverage(amount)
 	pb.showProgress()
 }
