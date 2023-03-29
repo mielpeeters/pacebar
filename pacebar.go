@@ -15,7 +15,7 @@ import (
 )
 
 const maxWidth int = 40
-const alpha float64 = 0.15
+const alpha float64 = 0.05
 
 // Pacebar is the type to interact with when showing
 // progress through the pacebar package
@@ -35,11 +35,16 @@ type Pacebar struct {
 
 	// lastUpdate contains the last time Done() was called
 	lastUpdate time.Time
+
+	// firstupdate contains the first call to this pacebar
+	firstUpdate time.Time
 }
 
 func (pb *Pacebar) runningAverage(amount int) {
 	if pb.speed == 0 {
 		pb.speed = 10
+		pb.lastUpdate = time.Now()
+		pb.firstUpdate = pb.lastUpdate
 	} else {
 		thisUpdate := time.Now()
 		currentSpeed := float64(amount) / (thisUpdate.Sub(pb.lastUpdate).Seconds())
@@ -67,7 +72,7 @@ func (pb *Pacebar) showProgress() {
 
 	// end by adding a line for subsequent outputs
 	if pb.done >= pb.Work {
-		fmt.Printf("\n")
+		fmt.Printf("\033[1m %7.3f s\033[0m\n", time.Now().Sub(pb.firstUpdate).Seconds())
 	}
 }
 
