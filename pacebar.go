@@ -39,7 +39,7 @@ type Pacebar struct {
 
 func (pb *Pacebar) runningAverage(amount int) {
 	if pb.speed == 0 {
-		pb.speed = 10 //TODO: better initialization
+		pb.speed = 10
 	} else {
 		thisUpdate := time.Now()
 		currentSpeed := float64(amount) / (thisUpdate.Sub(pb.lastUpdate).Seconds())
@@ -56,6 +56,10 @@ func (pb *Pacebar) showProgress() {
 	} else {
 		showRun = pb.done
 		showMax = pb.Work
+	}
+
+	if pb.Name == "" {
+		pb.Name = "Pacebar"
 	}
 
 	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) (%4.f / s)", pb.Name,
