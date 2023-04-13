@@ -63,7 +63,7 @@ func (pb *Pacebar) runningAverage(amount int) {
 func (pb *Pacebar) ETA() {
 	new := float64(pb.Work-pb.done) / pb.speed
 
-	pb.eta = runningAverage(pb.eta, new, 0.8)
+	pb.eta = runningAverage(pb.eta, new, 0.3)
 }
 
 func (pb *Pacebar) showProgress() {
@@ -82,7 +82,7 @@ func (pb *Pacebar) showProgress() {
 
 	pb.ETA()
 
-	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d)ETA %4.0fs", pb.Name,
+	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) ETA %4.0fs", pb.Name,
 		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.eta)
 
 	// end by adding a line for subsequent outputs
