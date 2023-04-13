@@ -38,6 +38,12 @@ type Pacebar struct {
 
 	// firstupdate contains the first call to this pacebar
 	firstUpdate time.Time
+
+	eta float64
+}
+
+func runningAverage(old, value, alpha float64) float64 {
+	return old*(1-alpha) + alpha*value
 }
 
 func (pb *Pacebar) runningAverage(amount int) {
@@ -54,8 +60,10 @@ func (pb *Pacebar) runningAverage(amount int) {
 }
 
 // ETA calculates the estimated remaining time in seconds.
-func (pb *Pacebar) ETA() float64 {
-	return float64(pb.Work-pb.done) / pb.speed
+func (pb *Pacebar) ETA() {
+	new := float64(pb.Work-pb.done) / pb.speed
+
+	pb.eta = runningAverage(pb.eta, new, 0.8)
 }
 
 func (pb *Pacebar) showProgress() {
@@ -72,8 +80,10 @@ func (pb *Pacebar) showProgress() {
 		pb.Name = "Pacebar"
 	}
 
-	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) (%4.f / s) ETA %4.0f", pb.Name,
-		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.speed, pb.ETA())
+	pb.ETA()
+
+	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d)ETA %4.0fs", pb.Name,
+		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.eta)
 
 	// end by adding a line for subsequent outputs
 	if pb.done >= pb.Work {
