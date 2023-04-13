@@ -53,6 +53,11 @@ func (pb *Pacebar) runningAverage(amount int) {
 	}
 }
 
+// ETA calculates the estimated remaining time in seconds.
+func (pb *Pacebar) ETA() float64 {
+	return float64(pb.Work-pb.done) / pb.speed
+}
+
 func (pb *Pacebar) showProgress() {
 	var showRun, showMax int
 	if pb.Work > maxWidth {
@@ -67,8 +72,8 @@ func (pb *Pacebar) showProgress() {
 		pb.Name = "Pacebar"
 	}
 
-	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) (%4.f / s)", pb.Name,
-		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.speed)
+	fmt.Printf("\r\033[1m%s: \033[32m%s\033[31m%s \033[0m(%d / %d) (%4.f / s) ETA %4.0f", pb.Name,
+		strings.Repeat("―", showRun), strings.Repeat("―", showMax-showRun), pb.done, pb.Work, pb.speed, pb.ETA())
 
 	// end by adding a line for subsequent outputs
 	if pb.done >= pb.Work {
